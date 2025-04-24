@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark" id="html-element">
+<html lang="en" id="html-element">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -195,11 +195,26 @@
     // Weather Widget
     const weatherCityInput = document.getElementById('weather-city');
     const weatherDisplay = document.getElementById('weather-display');
-    const OPENWE  = 'YOUR_OPENWEATHERMAP_API_KEY';
+
+    async function fetchWeatherKey() {
+      try {
+        const response = await fetch('http://localhost:3000/api/weather-key');
+        if (!response.ok) throw new Error('Failed to fetch API key');
+        const { apiKey } = await response.json();
+        return apiKey;
+      } catch (error) {
+        console.error('Error fetching weather key:', error);
+        weatherDisplay.innerHTML = '<p class="text-red-600">Error: Failed to load API key</p>';
+        return null;
+      }
+    }
 
     async function fetchWeather(city = 'New York') {
+      const apiKey = await fetchWeatherKey();
+      if (!apiKey) return;
+
       try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${OPEN_WEATHER_API_KEY}&units=metric`);
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
         if (!response.ok) throw new Error('City not found');
         const data = await response.json();
         const { main, weather } = data;
